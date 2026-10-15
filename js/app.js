@@ -10,12 +10,12 @@
       : /^(hr|bs)/.test((navigator.language || '').toLowerCase()) ? 'hr' : 'en',
     screenW: 6, screenH: 4, cabPreset: '0.5x0.5', cabW: 0.5, cabH: 0.5, cabKg: 8.4, cabA: 0.25,
     mixedRows: true, partialRowPos: 'bottom', partialKg: 0, partialA: 0, hung: false, rigPoints: 'auto',
-    pitch: 'P3.9', customPx: 128, refresh: 60, headroom: 0, portsPerSender: 4,
+    pitch: 'P3.9', customPx: 128, refresh: 60, portCap: 0, headroom: 0, portsPerSender: 4,
     orientation: 'h', pattern: 'snake', startV: 'bottom', startH: 'left',
     portLen: 5, shortLen: 0.5, voltage: 230, projectName: '', printer: false, optionIndex: 0,
   };
   const NUM_FIELDS = ['screenW', 'screenH', 'cabW', 'cabH', 'cabKg', 'cabA', 'customPx', 'portLen', 'shortLen', 'voltage'];
-  const OPT_NUM_FIELDS = ['partialKg', 'partialA']; // empty = automatic
+  const OPT_NUM_FIELDS = ['partialKg', 'partialA', 'portCap']; // empty = automatic
   // Typical weight / current per cabinet size; picking a size fills these in (still editable).
   const CAB_DEFAULTS = {
     '0.5x0.5': { cabKg: 8.4, cabA: 0.25, partialKg: 0, partialA: 0 },
@@ -75,7 +75,7 @@
     const sel = $('headroom'); sel.innerHTML = '';
     [0, 5, 10, 15, 20, 25, 50].forEach(h => {
       const o = document.createElement('option'); o.value = h;
-      const cap = Engine.portCapacity(S.refresh, h);
+      const cap = Engine.portCapacity(S.refresh, h, S.portCap);
       o.textContent = `${h}% (${fmt(cap)} ${T('pxPerPort')})${h === 50 ? ' — ' + T('hr10bit') : ''}`;
       sel.appendChild(o);
     });
@@ -110,6 +110,7 @@
     $('partialWrap').style.display = S.mixedRows ? '' : 'none';
     $('rigWrap').style.display = S.hung ? '' : 'none';
     $('customPxWrap').style.display = S.pitch === 'custom' ? '' : 'none';
+    $('portCap').placeholder = `${fmt(Engine.portCapacity(S.refresh, 0))} (${T('standard')})`;
   }
 
   function num(v, d) { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : d; }
@@ -138,7 +139,7 @@
       cabKg: S.cabKg, cabA: S.cabA, mixedRows: S.mixedRows, partialRowPos: S.partialRowPos,
       partialKg: S.partialKg, partialA: S.partialA,
     });
-    const cap = Engine.portCapacity(S.refresh, S.headroom);
+    const cap = Engine.portCapacity(S.refresh, S.headroom, S.portCap);
     const options = Engine.portLayouts(grid, cap, 12);
     const tot = Engine.totals(grid, S.voltage);
     if (!options.length) return { grid, cap, options, tot, layout: null };
@@ -341,7 +342,7 @@
         readForm(); S.optionIndex = el.id === 'orientation' || el.id === 'pattern' || el.id === 'startV' || el.id === 'startH' || el.id === 'projectName' ? S.optionIndex : 0;
         if (el.id === 'cabPreset' && CAB_DEFAULTS[S.cabPreset]) { Object.assign(S, CAB_DEFAULTS[S.cabPreset]); }
         if (el.id === 'cabPreset' || el.id === 'cabW') fillPitch();
-        if (el.name === 'refresh') fillHeadroom();
+        if (el.name === 'refresh' || el.id === 'portCap') fillHeadroom();
         if (el.id === 'hung' && S.hung) { S.startV = 'top'; }
         writeForm(); render();
       });

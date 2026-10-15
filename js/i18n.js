@@ -1,6 +1,8 @@
 /* UI strings: English, Croatian, Serbian (Latin). */
 window.I18N = {
   en: {
+    capHint: 'Port capacity (8-bit): 60 Hz → 500,000 px, 50 Hz → 650,000 px, 30 Hz → 1,300,000 px. Headroom is subtracted from this.',
+    portCap: 'Port capacity at 100 % (px) — leave empty for standard', standard: 'standard',
     pcs: 'pcs', sOfWhich: 'of which', sLonger: 'longer link', sReturn: 'return link',
     partialKg: 'Smaller cabinet weight (kg)', partialA: 'Smaller cabinet draw (A)', autoScaled: 'auto',
     partialHint: 'Cabinets in the partial row (e.g. 0.5×0.5 m next to 0.5×1 m). Leave empty to scale from the main cabinet.',
@@ -27,7 +29,6 @@ window.I18N = {
     secPorts: 'Ports and wiring chains',
     portsHint: 'The block size per port and the number of ports are calculated automatically — the largest cabinet block that fits under the effective port limit is chosen, so no port is left under-utilized.',
     refresh: 'Screen refresh rate',
-    capHint: 'Port capacity = 936,000,000 / (refresh × 24). 60 Hz → 650,000 px, 50 Hz → 780,000 px, 30 Hz → 1,300,000 px.',
     headroom: 'Headroom (port capacity reserve)',
     hr10bit: '10/12-bit signal', pxPerPort: 'px per port',
     portsPerSender: 'Ports per sending card',
@@ -61,6 +62,8 @@ window.I18N = {
     load: 'load', start: 'start', share: 'Share',
   },
   hr: {
+    capHint: 'Kapacitet porta (8-bit): 60 Hz → 500.000 px, 50 Hz → 650.000 px, 30 Hz → 1.300.000 px. Rezerva se oduzima od toga.',
+    portCap: 'Kapacitet porta na 100 % (px) — prazno = standardno', standard: 'standardno',
     pcs: 'kom', sOfWhich: 'od toga', sLonger: 'dulja veza', sReturn: 'povratna veza',
     partialKg: 'Masa manjeg kabineta (kg)', partialA: 'Potrošnja manjeg kabineta (A)', autoScaled: 'auto',
     partialHint: 'Kabineti u nižem redu (npr. 0,5×0,5 m uz 0,5×1 m). Ostavite prazno za automatski izračun iz glavnog kabineta.',
@@ -87,7 +90,6 @@ window.I18N = {
     secPorts: 'Portovi i lanci spajanja',
     portsHint: 'Veličina bloka po portu i broj portova računaju se automatski — bira se najveći blok kabineta koji stane ispod efektivnog limita porta, tako da nijedan port nije nedovoljno iskorišten.',
     refresh: 'Frekvencija osvježavanja',
-    capHint: 'Kapacitet porta = 936.000.000 / (frekvencija × 24). 60 Hz → 650.000 px, 50 Hz → 780.000 px, 30 Hz → 1.300.000 px.',
     headroom: 'Rezerva (pričuva kapaciteta porta)',
     hr10bit: '10/12-bitni signal', pxPerPort: 'px po portu',
     portsPerSender: 'Portova po kontroleru (sending card)',
@@ -121,6 +123,8 @@ window.I18N = {
     load: 'opterećenje', start: 'početak', share: 'Podijeli',
   },
   sr: {
+    capHint: 'Kapacitet porta (8-bit): 60 Hz → 500.000 px, 50 Hz → 650.000 px, 30 Hz → 1.300.000 px. Rezerva se oduzima od toga.',
+    portCap: 'Kapacitet porta na 100 % (px) — prazno = standardno', standard: 'standardno',
     pcs: 'kom', sOfWhich: 'od toga', sLonger: 'duža veza', sReturn: 'povratna veza',
     partialKg: 'Težina manjeg kabineta (kg)', partialA: 'Potrošnja manjeg kabineta (A)', autoScaled: 'auto',
     partialHint: 'Kabineti u nižem redu (npr. 0,5×0,5 m pored 0,5×1 m). Ostavite prazno za automatski proračun iz glavnog kabineta.',
@@ -147,7 +151,6 @@ window.I18N = {
     secPorts: 'Portovi i lanci povezivanja',
     portsHint: 'Veličina bloka po portu i broj portova se računaju automatski — bira se najveći blok kabineta koji staje ispod efektivnog limita porta, tako da nijedan port nije nedovoljno iskorišćen.',
     refresh: 'Frekvencija osvežavanja',
-    capHint: 'Kapacitet porta = 936.000.000 / (frekvencija × 24). 60 Hz → 650.000 px, 50 Hz → 780.000 px, 30 Hz → 1.300.000 px.',
     headroom: 'Rezerva (kapaciteta porta)',
     hr10bit: '10/12-bitni signal', pxPerPort: 'px po portu',
     portsPerSender: 'Portova po kontroleru (sending card)',

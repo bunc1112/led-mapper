@@ -31,9 +31,16 @@
     { id: 'P10', pitch: 10.0, group: 'outdoor' },
   ];
 
-  /** Gigabit port capacity: 936,000,000 / (refresh × 24). */
-  function portCapacity(refreshHz, headroomPct) {
-    const raw = Math.floor(936000000 / (refreshHz * 24));
+  /**
+   * Practical pixel capacity of one gigabit port (8-bit) per refresh rate.
+   * 60 Hz → 500,000 px, 50 Hz → 650,000 px; 30 Hz keeps the theoretical 936,000,000 / (Hz × 24).
+   */
+  const PORT_CAPACITY = { 60: 500000, 50: 650000, 30: 1300000 };
+
+  /** Effective capacity: base (or the table value for the refresh rate) minus headroom. */
+  function portCapacity(refreshHz, headroomPct, basePx) {
+    const raw = basePx > 0 ? basePx
+      : (PORT_CAPACITY[refreshHz] || Math.floor(936000000 / (refreshHz * 24)));
     return Math.floor(raw * (1 - (headroomPct || 0) / 100));
   }
 
@@ -335,7 +342,7 @@
   }
 
   return {
-    PITCH_PRESETS, portCapacity, buildGrid, regionPixels, splitRegion, portLayouts,
+    PITCH_PRESETS, PORT_CAPACITY, portCapacity, buildGrid, regionPixels, splitRegion, portLayouts,
     chainOrder, buildLayout, beamReactions, autoRigPoints, totals, stdLength,
   };
 });
