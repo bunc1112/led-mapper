@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>LED Mapper Configurator</title>
+<meta name="theme-color" content="#12151B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LED Mapper">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="logo"><span>LED</span>MAPPER</div>
+    <span class="ver" id="ver">v1.0</span>
+  </div>
+  <div class="lang" role="group" aria-label="Language">
+    <button data-lang="en">EN</button><button data-lang="hr">HR</button><button data-lang="sr">SR</button>
+  </div>
+</header>
+
+<main>
+  <h1 data-i18n="subtitle"></h1>
+  <p class="muted" data-i18n="tagline"></p>
+
+  <fieldset>
+    <legend data-i18n="secScreen"></legend>
+    <div class="grid2">
+      <label><span data-i18n="screenW"></span>
+        <div class="stepper"><button type="button" data-step="screenW:-">−</button><input id="screenW" type="number" inputmode="decimal" step="0.5" min="0.25"><button type="button" data-step="screenW:+">+</button></div></label>
+      <label><span data-i18n="screenH"></span>
+        <div class="stepper"><button type="button" data-step="screenH:-">−</button><input id="screenH" type="number" inputmode="decimal" step="0.5" min="0.25"><button type="button" data-step="screenH:+">+</button></div></label>
+    </div>
+    <label><span data-i18n="cabPreset"></span>
+      <select id="cabPreset">
+        <option value="0.5x0.5" data-i18n="cabSquare"></option>
+        <option value="0.5x1" data-i18n="cabTall"></option>
+        <option value="1x0.5" data-i18n="cabWide"></option>
+        <option value="custom" data-i18n="cabCustom"></option>
+      </select></label>
+    <div class="grid2">
+      <label><span data-i18n="cabW"></span><input id="cabW" type="number" inputmode="decimal" step="0.01" min="0.1"></label>
+      <label><span data-i18n="cabH"></span><input id="cabH" type="number" inputmode="decimal" step="0.01" min="0.1"></label>
+    </div>
+    <div class="grid2">
+      <label><span data-i18n="cabKg"></span>
+        <div class="stepper"><button type="button" data-step="cabKg:-">−</button><input id="cabKg" type="number" inputmode="decimal" step="0.1" min="0"><button type="button" data-step="cabKg:+">+</button></div></label>
+      <label><span data-i18n="cabA"></span>
+        <div class="stepper"><button type="button" data-step="cabA:-">−</button><input id="cabA" type="number" inputmode="decimal" step="0.05" min="0"><button type="button" data-step="cabA:+">+</button></div></label>
+    </div>
+    <label class="check"><input id="mixedRows" type="checkbox"><span data-i18n="mixedRows"></span></label>
+    <label id="partialWrap"><span data-i18n="partialPos"></span>
+      <select id="partialRowPos"><option value="bottom" data-i18n="posBottom"></option><option value="top" data-i18n="posTop"></option></select></label>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="secMount"></legend>
+    <label class="check"><input id="hung" type="checkbox"><span data-i18n="hung"></span></label>
+    <label id="rigWrap"><span data-i18n="rigPoints"></span><select id="rigPoints"></select></label>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="secRes"></legend>
+    <label><span data-i18n="resPreset"></span><select id="pitch"></select></label>
+    <label id="customPxWrap"><span data-i18n="customPx"></span><input id="customPx" type="number" inputmode="numeric" min="8" max="2048" step="1"></label>
+    <p class="hint" data-i18n="resHint"></p>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="secPorts"></legend>
+    <p class="hint" data-i18n="portsHint"></p>
+    <span class="lbl" data-i18n="refresh"></span>
+    <div class="radios">
+      <label><input type="radio" name="refresh" value="60">60Hz</label>
+      <label><input type="radio" name="refresh" value="50">50Hz</label>
+      <label><input type="radio" name="refresh" value="30">30Hz</label>
+    </div>
+    <p class="hint" data-i18n="capHint"></p>
+    <label><span data-i18n="headroom"></span><select id="headroom"></select></label>
+    <label><span data-i18n="portsPerSender"></span>
+      <select id="portsPerSender"><option>1</option><option>2</option><option>4</option><option>6</option><option>8</option><option>10</option><option>16</option><option>20</option></select></label>
+    <div class="grid2">
+      <label><span data-i18n="orientation"></span><select id="orientation"><option value="h" data-i18n="horizontal"></option><option value="v" data-i18n="vertical"></option></select></label>
+      <label><span data-i18n="pattern"></span><select id="pattern"><option value="snake" data-i18n="snake"></option><option value="seq" data-i18n="sequential"></option></select></label>
+      <label><span data-i18n="startV"></span><select id="startV"><option value="bottom" data-i18n="posBottom"></option><option value="top" data-i18n="posTop"></option></select></label>
+      <label><span data-i18n="startH"></span><select id="startH"><option value="left" data-i18n="left"></option><option value="right" data-i18n="right"></option></select></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="secCables"></legend>
+    <div class="grid3">
+      <label><span data-i18n="portLen"></span><input id="portLen" type="number" inputmode="decimal" step="0.5" min="0.5"></label>
+      <label><span data-i18n="shortLen"></span><input id="shortLen" type="number" inputmode="decimal" step="0.1" min="0.1"></label>
+      <label><span data-i18n="voltage"></span><input id="voltage" type="number" inputmode="numeric" step="1" min="100"></label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="secProject"></legend>
+    <label><span data-i18n="projectName"></span><input id="projectName" type="text" maxlength="40"></label>
+  </fieldset>
+</main>
+
+<section class="results" id="results">
+  <div class="tiles" id="tiles"></div>
+  <div class="summary" id="summary"></div>
+  <ul class="legend" id="legend"></ul>
+  <div class="diagram"><canvas id="diagram"></canvas></div>
+  <div class="actions">
+    <div class="optrow">
+      <button id="optBtn" class="outline wide"></button>
+      <div class="seg">
+        <button id="tglOrient" title="Horizontal / vertical">⇄</button>
+        <button id="tglStart" title="Bottom / top">⇅</button>
+      </div>
+    </div>
+    <button id="btnScr" class="primary"></button>
+    <label class="check"><input id="printer" type="checkbox"><span data-i18n="printer"></span></label>
+    <div class="grid2">
+      <button id="btnPdf" class="outline" data-i18n="pdf"></button>
+      <button id="btnJpg" class="outline" data-i18n="jpg"></button>
+      <button id="btnSave" class="outline" data-i18n="saveParams"></button>
+      <button id="btnLoad" class="outline" data-i18n="loadParams"></button>
+    </div>
+    <input id="fileLoad" type="file" accept=".json,application/json" hidden>
+    <p class="hint center" data-i18n="scrNote"></p>
+    <p class="hint center" data-i18n="offline"></p>
+  </div>
+</section>
+<div id="toast" class="toast"></div>
+
+<script src="lib/jspdf.umd.min.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/scr.js"></script>
+<script src="js/render.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+<script>
+  // Offline support for the web / home-screen version only (native apps bundle the files).
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.AndroidBridge &&
+      !(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.ledmapper) &&
+      location.hostname !== 'appassets.androidplatform.net') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

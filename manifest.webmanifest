@@ -1,0 +1,16 @@
+{
+  "name": "LED Mapper Configurator",
+  "short_name": "LED Mapper",
+  "description": "NovaStar LED wiring diagrams and .scr export — works offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#12151B",
+  "theme_color": "#12151B",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
