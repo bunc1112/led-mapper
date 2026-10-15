@@ -41,7 +41,8 @@
 
   /**
    * Build the cabinet grid.
-   * p = { screenW, screenH, cabW, cabH, pxW, cabKg, cabA, mixedRows, partialRowPos: 'bottom'|'top' }
+   * p = { screenW, screenH, cabW, cabH, pxW, cabKg, cabA, mixedRows, partialRowPos: 'bottom'|'top',
+   *       partialKg?, partialA? }  (weight / current of the smaller cabinets in a mixed row)
    */
   function buildGrid(p) {
     const eps = 1e-6;
@@ -58,8 +59,9 @@
         partial = {
           h: rem,
           px: Math.max(1, Math.round(p.pxW * rem / p.cabW)),
-          kg: round2(p.cabKg * f),
-          a: Math.round(p.cabA * f * 1000) / 1000,
+          // A real smaller cabinet has its own weight/draw; fall back to scaling by height.
+          kg: isFinite(p.partialKg) && p.partialKg > 0 ? p.partialKg : round2(p.cabKg * f),
+          a: isFinite(p.partialA) && p.partialA > 0 ? p.partialA : Math.round(p.cabA * f * 1000) / 1000,
           partial: true,
         };
       }
@@ -250,22 +252,25 @@
     const cells = []; // [r][c] = { port, index }
     for (let r = 0; r < grid.rows.length; r++) cells.push(new Array(grid.cols).fill(null));
     const ports = [];
-    let shortLinks = 0;
-    const longLinks = {};
+    // Links between cabinets, grouped by type and length.
+    //  short  : neighbours, cable length = the user's short-link length
+    //  longer : neighbours further apart than that (e.g. vertical link between 1 m tall cabinets)
+    //  return : non-neighbours (sequential pattern jumping back to the row/column start)
+    const links = {};
+    const addLink = (type, L) => { const k = type + ':' + L; links[k] = (links[k] || 0) + 1; };
+    const centreY = r => grid.rows[r].ym + grid.rows[r].h / 2;
     option.regions.forEach((reg, pi) => {
       const chain = chainOrder(reg, opts);
       chain.forEach((p, i) => { cells[p.r][p.c] = { port: pi, index: i }; });
       for (let i = 1; i < chain.length; i++) {
         const a = chain[i - 1], b = chain[i];
         const dc = Math.abs(a.c - b.c), dr = Math.abs(a.r - b.r);
-        if (dc + dr === 1) shortLinks++;
-        else {
-          // distance in metres between cabinet centres
-          const ya = grid.rows[a.r].ym + grid.rows[a.r].h / 2;
-          const yb = grid.rows[b.r].ym + grid.rows[b.r].h / 2;
-          const d = dc * grid.cabW + Math.abs(ya - yb);
-          const L = stdLength(d + 0.3);
-          longLinks[L] = (longLinks[L] || 0) + 1;
+        const dist = dc * grid.cabW + Math.abs(centreY(a.r) - centreY(b.r));
+        if (dc + dr === 1) {
+          if (dist <= cable.shortLen + 1e-9) addLink('short', cable.shortLen);
+          else addLink('longer', stdLength(dist));
+        } else {
+          addLink('return', stdLength(dist + 0.3));
         }
       }
       const px = regionPixels(grid, reg.c0, reg.c1, reg.r0, reg.r1);
@@ -278,9 +283,10 @@
       ports, cells,
       cables: {
         port: { count: ports.length, length: cable.portLen },
-        short: { count: shortLinks, length: cable.shortLen },
-        long: Object.keys(longLinks).map(Number).sort((a, b) => a - b)
-          .map(L => ({ length: L, count: longLinks[L] })),
+        links: Object.keys(links).map(k => {
+          const [type, L] = k.split(':');
+          return { type, length: Number(L), count: links[k] };
+        }).sort((x, y) => ['short', 'longer', 'return'].indexOf(x.type) - ['short', 'longer', 'return'].indexOf(y.type) || x.length - y.length),
       },
     };
   }

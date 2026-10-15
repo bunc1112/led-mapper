@@ -57,8 +57,15 @@
         <div class="stepper"><button type="button" data-step="cabA:-">−</button><input id="cabA" type="number" inputmode="decimal" step="0.05" min="0"><button type="button" data-step="cabA:+">+</button></div></label>
     </div>
     <label class="check"><input id="mixedRows" type="checkbox"><span data-i18n="mixedRows"></span></label>
-    <label id="partialWrap"><span data-i18n="partialPos"></span>
-      <select id="partialRowPos"><option value="bottom" data-i18n="posBottom"></option><option value="top" data-i18n="posTop"></option></select></label>
+    <div id="partialWrap">
+      <label><span data-i18n="partialPos"></span>
+        <select id="partialRowPos"><option value="bottom" data-i18n="posBottom"></option><option value="top" data-i18n="posTop"></option></select></label>
+      <div class="grid2">
+        <label><span data-i18n="partialKg"></span><input id="partialKg" type="number" inputmode="decimal" step="0.1" min="0" data-i18n-ph="autoScaled"></label>
+        <label><span data-i18n="partialA"></span><input id="partialA" type="number" inputmode="decimal" step="0.05" min="0" data-i18n-ph="autoScaled"></label>
+      </div>
+      <p class="hint" data-i18n="partialHint"></p>
+    </div>
   </fieldset>
 
   <fieldset>
@@ -93,6 +100,7 @@
       <label><span data-i18n="startV"></span><select id="startV"><option value="bottom" data-i18n="posBottom"></option><option value="top" data-i18n="posTop"></option></select></label>
       <label><span data-i18n="startH"></span><select id="startH"><option value="left" data-i18n="left"></option><option value="right" data-i18n="right"></option></select></label>
     </div>
+    <p class="hint" data-i18n="snakeHint"></p>
   </fieldset>
 
   <fieldset>

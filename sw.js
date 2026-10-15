@@ -1,5 +1,5 @@
 /* Offline cache for the web / home-screen version. Bump VERSION when assets change. */
-const VERSION = 'ledmapper-3341fb5';
+const VERSION = 'ledmapper-7d5ce54';
 const ASSETS = [
   "./",
   "./css/style.css",

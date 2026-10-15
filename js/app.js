@@ -9,12 +9,19 @@
     lang: (navigator.language || 'en').toLowerCase().startsWith('sr') ? 'sr'
       : /^(hr|bs)/.test((navigator.language || '').toLowerCase()) ? 'hr' : 'en',
     screenW: 6, screenH: 4, cabPreset: '0.5x0.5', cabW: 0.5, cabH: 0.5, cabKg: 8.4, cabA: 0.25,
-    mixedRows: true, partialRowPos: 'bottom', hung: false, rigPoints: 'auto',
+    mixedRows: true, partialRowPos: 'bottom', partialKg: 0, partialA: 0, hung: false, rigPoints: 'auto',
     pitch: 'P3.9', customPx: 128, refresh: 60, headroom: 0, portsPerSender: 4,
     orientation: 'h', pattern: 'snake', startV: 'bottom', startH: 'left',
     portLen: 5, shortLen: 0.5, voltage: 230, projectName: '', printer: false, optionIndex: 0,
   };
   const NUM_FIELDS = ['screenW', 'screenH', 'cabW', 'cabH', 'cabKg', 'cabA', 'customPx', 'portLen', 'shortLen', 'voltage'];
+  const OPT_NUM_FIELDS = ['partialKg', 'partialA']; // empty = automatic
+  // Typical weight / current per cabinet size; picking a size fills these in (still editable).
+  const CAB_DEFAULTS = {
+    '0.5x0.5': { cabKg: 8.4, cabA: 0.25, partialKg: 0, partialA: 0 },
+    '0.5x1': { cabKg: 14, cabA: 0.5, partialKg: 8.4, partialA: 0.25 },
+    '1x0.5': { cabKg: 14, cabA: 0.5, partialKg: 0, partialA: 0 },
+  };
   const SEL_FIELDS = ['cabPreset', 'partialRowPos', 'rigPoints', 'pitch', 'headroom', 'portsPerSender', 'orientation', 'pattern', 'startV', 'startH'];
   const CHK_FIELDS = ['mixedRows', 'hung', 'printer'];
 
@@ -84,6 +91,7 @@
   function applyLang() {
     document.documentElement.lang = S.lang;
     document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = T(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = T(el.dataset.i18nPh); });
     document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('on', b.dataset.lang === S.lang));
     $('btnScr').textContent = T('genScr');
     fillPitch(); fillHeadroom(); fillRig();
@@ -92,6 +100,7 @@
   /* ---------- state <-> form ---------- */
   function writeForm() {
     NUM_FIELDS.forEach(k => { $(k).value = S[k]; });
+    OPT_NUM_FIELDS.forEach(k => { $(k).value = S[k] > 0 ? S[k] : ''; });
     SEL_FIELDS.forEach(k => { if ($(k)) $(k).value = String(S[k]); });
     CHK_FIELDS.forEach(k => { $(k).checked = !!S[k]; });
     $('projectName').value = S.projectName;
@@ -107,6 +116,7 @@
 
   function readForm() {
     NUM_FIELDS.forEach(k => { S[k] = num($(k).value, S[k]); });
+    OPT_NUM_FIELDS.forEach(k => { S[k] = Math.max(0, num($(k).value, 0)); });
     SEL_FIELDS.forEach(k => { if ($(k)) S[k] = $(k).value; });
     CHK_FIELDS.forEach(k => { S[k] = $(k).checked; });
     S.projectName = $('projectName').value;
@@ -126,6 +136,7 @@
     const grid = Engine.buildGrid({
       screenW: S.screenW, screenH: S.screenH, cabW: S.cabW, cabH: S.cabH, pxW,
       cabKg: S.cabKg, cabA: S.cabA, mixedRows: S.mixedRows, partialRowPos: S.partialRowPos,
+      partialKg: S.partialKg, partialA: S.partialA,
     });
     const cap = Engine.portCapacity(S.refresh, S.headroom);
     const options = Engine.portLayouts(grid, cap, 12);
@@ -145,16 +156,22 @@
   function summaryRows(m) {
     const g = m.grid, L = m.layout, opt = m.option;
     const rows = [];
+    const fullRow = g.rows.find(r => !r.partial) || g.rows[0];
+    const pr = g.rows.find(r => r.partial);
+    const nFull = g.cols * g.rows.filter(r => !r.partial).length, nPart = g.partialCount;
+    const cabTxt = (n, h, px) => `${n} ${T('pcs')} ${fmtm(g.cabW)}×${fmtm(h)} m (${g.pxW}×${px} px)`;
     rows.push([`${g.cols} × ${g.rows.length} ${T('cabinets')}`, `${T('total')} ${g.cabinetCount}`]);
-    rows.push([T('sTotalWeight'), `${fmt(m.tot.kg, 1)} kg`]);
-    rows.push([T('sTotalCurrent'), `${fmt(m.tot.amps, 2)} A · ${fmt(m.tot.watts)} W @ ${fmt(S.voltage)} V`]);
+    if (pr) rows.push([T('sOfWhich'), `${cabTxt(nFull, fullRow.h, fullRow.px)} + ${cabTxt(nPart, pr.h, pr.px)}`]);
+    const part = (n, v, d, unit) => `${fmt(n * v, d)} ${unit} (${n}×${fmt(v, d === 1 ? 1 : 2)} ${unit})`;
+    rows.push([T('sTotalWeight'), pr
+      ? `${part(nFull, fullRow.kg, 1, 'kg')} + ${part(nPart, pr.kg, 1, 'kg')} = ${fmt(m.tot.kg, 1)} kg`
+      : `${g.cabinetCount} × ${fmt(fullRow.kg, 1)} kg = ${fmt(m.tot.kg, 1)} kg`]);
+    rows.push([T('sTotalCurrent'), (pr
+      ? `${part(nFull, fullRow.a, 2, 'A')} + ${part(nPart, pr.a, 2, 'A')} = ${fmt(m.tot.amps, 2)} A`
+      : `${g.cabinetCount} × ${fmt(fullRow.a, 2)} A = ${fmt(m.tot.amps, 2)} A`) + ` · ${fmt(m.tot.watts)} W @ ${fmt(S.voltage)} V`]);
     rows.push([T('sCircuits'), `${m.tot.circuits16}`]);
     rows.push([T('sEffSize'), `${fmtm(g.widthM)} × ${fmtm(g.heightM)} m`]);
-    rows.push([T('sResCab'), `${g.pxW} × ${g.rows.find(r => !r.partial) ? g.rows.find(r => !r.partial).px : g.rows[0].px} px`]);
-    if (g.partialCount) {
-      const pr = g.rows.find(r => r.partial);
-      rows.push([T('sPartial'), `${g.cols} × ${fmtm(g.cabW)} × ${fmtm(pr.h)} m · ${g.pxW} × ${pr.px} px · ${fmt(pr.kg, 1)} kg · ${fmt(pr.a, 2)} A`]);
-    }
+    rows.push([T('sResCab'), pr ? `${g.pxW} × ${fullRow.px} px + ${g.pxW} × ${pr.px} px` : `${g.pxW} × ${fullRow.px} px`]);
     rows.push([T('sResTotal'), `${g.widthPx} × ${g.heightPx} px`]);
     if (L) {
       const cabs = L.ports.map(p => p.cabinets);
@@ -171,10 +188,10 @@
     return rows;
   }
 
+  const LINK_LABEL = { short: 'sShort', longer: 'sLonger', return: 'sReturn' };
   function cableText(L) {
     const parts = [`${L.cables.port.count} × ${fmt(L.cables.port.length, 1)}m (${T('sPortCable')})`];
-    if (L.cables.short.count) parts.push(`${L.cables.short.count} × ${fmt(L.cables.short.length, 1)}m (${T('sShort')})`);
-    L.cables.long.forEach(c => parts.push(`${c.count} × ${fmt(c.length, 1)}m (${T('sLong')})`));
+    L.cables.links.forEach(c => parts.push(`${c.count} × ${fmt(c.length, 1)}m (${T(LINK_LABEL[c.type])})`));
     return parts.join(' + ');
   }
 
@@ -263,11 +280,11 @@
       summary: summaryRows(m).filter(r => r[0] !== T('sCables')),
       ports: [[T('port'), T('cab'), 'px', '%']].concat(L.ports.map(p => [`${T('port')} ${p.index + 1}`, p.cabinets, fmt(p.pixels), `${Math.round(p.load * 100)}%`])),
       cables: [[`${T('sPortCable')} (${fmt(L.cables.port.length, 1)} m)`, `${L.cables.port.count}`]]
-        .concat(L.cables.short.count ? [[`${T('sShort')} (${fmt(L.cables.short.length, 1)} m)`, `${L.cables.short.count}`]] : [])
-        .concat(L.cables.long.map(c => [`${T('sLong')} (${fmt(c.length, 1)} m)`, `${c.count}`])),
+        .concat(L.cables.links.map(c => [`${T(LINK_LABEL[c.type])} (${fmt(c.length, 1)} m)`, `${c.count}`])),
       settings: [
         [T('cabPreset'), `${fmtm(S.cabW)} × ${fmtm(S.cabH)} m`],
         [T('cabKg'), fmt(S.cabKg, 2)], [T('cabA'), fmt(S.cabA, 3)],
+        ...(g.partialCount ? [[T('partialKg'), fmt(g.rows.find(r => r.partial).kg, 2)], [T('partialA'), fmt(g.rows.find(r => r.partial).a, 3)]] : []),
         [T('resPreset'), S.pitch === 'custom' ? `${S.customPx} px` : `${S.pitch} · ${g.pxW} px`],
         [T('refresh'), `${S.refresh} Hz`], [T('headroom'), `${S.headroom}% (${fmt(m.cap)} ${T('pxPerPort')})`],
         [T('portsPerSender'), String(S.portsPerSender)],
@@ -322,6 +339,7 @@
       if (el.id === 'fileLoad' || el.id === 'printer') return;
       el.addEventListener('change', () => {
         readForm(); S.optionIndex = el.id === 'orientation' || el.id === 'pattern' || el.id === 'startV' || el.id === 'startH' || el.id === 'projectName' ? S.optionIndex : 0;
+        if (el.id === 'cabPreset' && CAB_DEFAULTS[S.cabPreset]) { Object.assign(S, CAB_DEFAULTS[S.cabPreset]); }
         if (el.id === 'cabPreset' || el.id === 'cabW') fillPitch();
         if (el.name === 'refresh') fillHeadroom();
         if (el.id === 'hung' && S.hung) { S.startV = 'top'; }
