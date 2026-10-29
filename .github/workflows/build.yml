@@ -1,5 +1,7 @@
 name: Build Chronos FFGL
 on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: write
 jobs:
   windows:
     runs-on: windows-latest
@@ -18,3 +20,20 @@ jobs:
       - run: cd build-mac && zip -r Chronos-macOS.zip Chronos.bundle
       - uses: actions/upload-artifact@v4
         with: { name: Chronos-macOS-universal, path: build-mac/Chronos-macOS.zip }
+  release:
+    needs: [windows, macos]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - name: Publish release with direct download links
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=chronos-latest
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "CHRONOS FFGL plugin (latest build)" --prerelease \
+            --notes "Windows: download Chronos.dll and copy it to Documents\\Resolume Arena\\Extra Effects, then restart Resolume. macOS: unzip Chronos-macOS.zip and copy Chronos.bundle to the same folder." \
+            dist/Chronos-Windows-x64/Chronos.dll dist/Chronos-macOS-universal/Chronos-macOS.zip
