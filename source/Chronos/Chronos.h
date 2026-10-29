@@ -3,8 +3,10 @@
 #include <random>
 #include <FFGLSDK.h>
 
-// CHRONOS - eight time-bending effects in one native FFGL plugin.
+// CHRONOS - twenty time-bending effects in one native FFGL plugin.
 // Keeps a GPU ring buffer of past frames (GL_TEXTURE_2D_ARRAY) and lets every mode read from it.
+static const int kModeCount = 20;
+
 class Chronos : public CFFGLPlugin
 {
 public:
@@ -24,13 +26,20 @@ private:
 	void ReleaseHistory();
 	void UpdateBeat();
 	void ApplyModeUI( bool raiseEvents );
+	void ClearState();
+	static bool IsStateful( int m ) { return m == 8 || m == 10 || m == 11; }
 
 	ffglex::FFGLShader mainShader;
 	ffglex::FFGLShader copyShader;
+	ffglex::FFGLShader stateShader;
 	ffglex::FFGLScreenQuad quad;
 
 	GLuint historyTex = 0;
 	GLuint fbo        = 0;
+	GLuint stateTex[ 2 ] = { 0, 0 };
+	int stateCur         = 0;
+	bool stateDirty      = true;
+	bool refreshPending  = true;
 	GLsizei histW = 0, histH = 0, histN = 0;
 	int head  = -1;
 	int valid = 0;
@@ -47,7 +56,7 @@ private:
 	float mixAmount = 1.0f;
 	int framesOpt   = 2;
 	int resOpt      = 1;
-	float paramStore[ 8 ][ 2 ];// remembers A/B per mode so switching modes feels like switching effects
+	float paramStore[ kModeCount ][ 2 ];// remembers A/B per mode so switching modes feels like switching effects
 
 	// beat / stutter state
 	std::chrono::steady_clock::time_point startTime;
@@ -62,6 +71,7 @@ private:
 	unsigned long long sliceStart  = 0;
 	int loopLen                    = 8;
 	float stutterAge               = 0.0f;
+	float beatPhase                = 0.0f;
 
 	char displayBuf[ 32 ];
 };

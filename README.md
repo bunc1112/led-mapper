@@ -1,4 +1,4 @@
-# CHRONOS — 8 time-bending effects in one FFGL plugin for Resolume
+# CHRONOS — 20 time-bending effects in one FFGL plugin for Resolume
 
 People on the Resolume forum have been asking for a native **slit-scan** and **Rutt-Etra** FFGL plugin since 2015.
 Right now the only ways to get them are feedback-layer tricks or Wire patches. CHRONOS is a native C++ FFGL 2.x effect
@@ -7,7 +7,7 @@ moment from the last 16–128 frames directly, with no feedback smearing.
 
 ![contact sheet](preview/chronos_contact_sheet.png)
 
-## The 8 modes (choose them in the *Mode* dropdown)
+## The 20 modes (choose them in the *Mode* dropdown)
 
 | # | Mode | What it does | Param A | Param B |
 |---|------|--------------|---------|---------|
@@ -19,15 +19,30 @@ moment from the last 16–128 frames directly, with no feedback smearing.
 | 5 | **Time Mosaic** | Blocks of the picture fall behind in time and reshuffle on the beat (datamosh feel) | Block Size | Chance |
 | 6 | **Long Exposure** | Camera shutter: from *average* (motion blur) to *max* (light painting) | Light Paint | Decay |
 | 7 | **Time Tunnel** | Older frames sink into the distance, and bright parts of newer frames sit in front of them | Zoom | Key Level |
+| 8 | **Datamosh** | Real optical flow per 16 px macroblock drags the previous image along the motion (the P-frame "bloom"). On the beat, with *I-Frame Chance*, it snaps back to clean video | Mosh Strength | I-Frame Chance |
+| 9 | **Pixel Melt** | Pixel-sort style drips: bright pixels run down into darker areas (sideways with Reverse). The further a drip falls, the further back in time it was sampled | Threshold | Length |
+| 10 | **Reaction-Diffusion** | Live Gray-Scott simulation (8 steps per frame) that grows over the video and is fed by its brightness. Patterns go from coral to mitosis to worms | Pattern | Video Influence |
+| 11 | **Infinite Feedback** | Classic video feedback that zooms, spins and slowly shifts hue, with no extra layers needed | Zoom / Spin | Persistence |
+| 12 | **VHS Rewind** | Plays the buffer backwards like a rewinding tape, with tracking band, jitter, colour bleed, scanlines and noise. Reverse switches to normal-speed VHS playback | Rewind Speed | Tape Damage |
+| 13 | **Video Scratch** | The playhead is scratched back and forth on every beat division, like a DJ on a turntable | Scratch Shape | Double Time |
+| 14 | **Beat Ripple** | On each beat a shockwave travels out: ahead of it you see the past (Depth ago), behind it time snaps back to live | Wave Strength | Random Center |
+| 15 | **Slice Shift** | Horizontal bands jump sideways and back in time with RGB split, reshuffling on the beat | Bands | Chance |
+| 16 | **Strobe Echo** | Stroboscopic multiple exposure: 2–8 crisp copies of the past | Copies | Falloff |
+| 17 | **Neon Echo** | Outlines of the last moments, each age glowing in its own neon colour | Sensitivity | Video Level |
+| 18 | **Time Kaleido** | Kaleidoscope where every mirrored segment shows a different moment. With Reverse, time follows the radius instead | Segments | Spin |
+| 19 | **Motion Key / Cloak** | B = 0 keeps only what moves (transparent elsewhere, great for layering). B = 1 turns movers into a see-through refractive "invisibility cloak" | Sensitivity | Key / Cloak |
 
 **Shared controls:** Depth (how far back in time to look; the readout shows frames), Reverse Time (flips the direction;
-in Time Mosaic it inverts blocks), Beat Division (1/16 … 1 bar), Freeze Buffer (stops recording so you can scrub a
+in Time Mosaic it inverts blocks), Beat Division (1/16 … 1 bar; used by Beat Stutter, Time Mosaic, Datamosh, Video Scratch, Beat Ripple and Slice Shift), Freeze Buffer (stops recording so you can scrub a
 frozen moment), Mix (dry/wet).
 **Buffer group:** Buffer Frames (16/32/64/128) and Buffer Res (Full/Half/Quarter).
 
 Small touches: Param A/B **change their names** for each mode (*Map Repeat*, *Loop Length*, *Light Paint*…), controls that
 don't apply are hidden, and each mode **remembers its own A/B values**, so switching modes feels like switching
 effects. These need Resolume 7.4 or newer; older 7.x versions just show "Param A / Param B".
+
+### Feedback modes
+Datamosh, Reaction-Diffusion and Infinite Feedback keep a half-float feedback buffer at *Buffer Res*. It restarts fresh each time you switch to one of them.
 
 ### VRAM
 The buffer uses `width × height × 4 bytes × frames`. At 1080p, Half res with 64 frames is about 130 MB (the default).
@@ -57,7 +72,7 @@ Resolume. You'll find it under Effects → **Chronos**.
 
 ## Preview without Resolume
 `tools/preview_harness.py` runs the exact plugin shaders headless (moderngl + EGL), and `tools/render_showreel.py`
-renders `preview/chronos_showreel.mp4`. This is how the modes were tested.
+renders `preview/chronos_showreel.mp4`. This is how the modes were tested. (`tools/dump_shaders.cpp` extracts the GLSL from the plugin source, so the preview always matches the plugin.)
 ```
 pip install moderngl numpy pillow imageio imageio-ffmpeg
 python tools/render_showreel.py
@@ -65,5 +80,5 @@ python tools/render_showreel.py
 
 ## Verified so far
 - Builds and links against the current resolume/ffgl master and exports `plugMain` (checked on Linux).
-- All 8 modes ran on a real OpenGL 4.x driver (Mesa) with the exact plugin GLSL `#version 410 core`.
+- All 20 modes ran on a real OpenGL 4.x driver (Mesa) with the exact plugin GLSL `#version 410 core`.
 - Not yet tested inside Resolume itself. Please report anything odd (Resolume's log shows `Chronos:` messages).
