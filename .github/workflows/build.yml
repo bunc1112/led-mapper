@@ -1,0 +1,20 @@
+name: Build Chronos FFGL
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build-win -A x64
+      - run: cmake --build build-win --config Release
+      - uses: actions/upload-artifact@v4
+        with: { name: Chronos-Windows-x64, path: build-win/Release/Chronos.dll }
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build-mac -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build build-mac --config Release
+      - run: cd build-mac && zip -r Chronos-macOS.zip Chronos.bundle
+      - uses: actions/upload-artifact@v4
+        with: { name: Chronos-macOS-universal, path: build-mac/Chronos-macOS.zip }

@@ -1,0 +1,4 @@
+/build-*/
+build-*/
+*.so
+__pycache__/
