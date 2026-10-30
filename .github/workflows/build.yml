@@ -10,16 +10,16 @@ jobs:
       - run: cmake -S . -B build-win -A x64
       - run: cmake --build build-win --config Release
       - uses: actions/upload-artifact@v4
-        with: { name: Chronos-Windows-x64, path: build-win/Release/Chronos.dll }
+        with: { name: Plugins-Windows-x64, path: "build-win/Release/*.dll" }
   macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - run: cmake -S . -B build-mac -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build-mac --config Release
-      - run: cd build-mac && zip -r Chronos-macOS.zip Chronos.bundle
+      - run: cd build-mac && zip -r Chronos-macOS.zip Chronos.bundle && zip -r Cutup-macOS.zip Cutup.bundle
       - uses: actions/upload-artifact@v4
-        with: { name: Chronos-macOS-universal, path: build-mac/Chronos-macOS.zip }
+        with: { name: Plugins-macOS-universal, path: "build-mac/*-macOS.zip" }
   release:
     needs: [windows, macos]
     if: github.event_name == 'push'
@@ -34,6 +34,6 @@ jobs:
           TAG=chronos-latest
           gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "CHRONOS FFGL plugin (latest build)" --prerelease \
-            --notes "Windows: download Chronos.dll and copy it to Documents\\Resolume Arena\\Extra Effects, then restart Resolume. macOS: unzip Chronos-macOS.zip and copy Chronos.bundle to the same folder." \
-            dist/Chronos-Windows-x64/Chronos.dll dist/Chronos-macOS-universal/Chronos-macOS.zip
+            --title "CHRONOS + CUTUP FFGL plugins (latest build)" --prerelease \
+            --notes "Windows: download Chronos.dll and/or Cutup.dll and copy them to Documents\\Resolume Arena\\Extra Effects, then restart Resolume. macOS: unzip the -macOS.zip files and copy the .bundle files to the same folder." \
+            dist/Plugins-Windows-x64/*.dll dist/Plugins-macOS-universal/*.zip

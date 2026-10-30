@@ -2,3 +2,4 @@
 build-*/
 *.so
 __pycache__/
+tools/font_atlas_preview.png

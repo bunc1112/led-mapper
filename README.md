@@ -82,3 +82,57 @@ python tools/render_showreel.py
 - Builds and links against the current resolume/ffgl master and exports `plugMain` (checked on Linux).
 - All 20 modes ran on a real OpenGL 4.x driver (Mesa) with the exact plugin GLSL `#version 410 core`.
 - Not yet tested inside Resolume itself. Please report anything odd (Resolume's log shows `Chronos:` messages).
+
+---
+
+# CUTUP — beat-synced recap montage with text (second plugin)
+
+Recreates the classic "year recap" edit: big words pop in letter by letter with the footage **inside** the letters,
+then hard cuts, cards cascading and zooming, cream flash frames. All of it is cut **on the beat**
+(Resolume's BPM) or with the **Next** button, with up to **16 text boxes**.
+
+`preview/cutup_showreel.mp4` shows it. Left: video in shapes on a red vignette, with captions on cuts. Right: Holes
+mode, where a second layer shows through the text and shapes.
+
+## How to layer it
+Put CUTUP on a layer (or clip) with your footage:
+- **Output → Video in Shapes**: your footage only appears inside the words, cards and shapes. With *Background =
+  Transparent*, everything else is see-through, so layers below fill the rest.
+- **Output → Holes (Layer Below)**: the words and shapes are cut out of this layer, so **the video on the layer below
+  is visible inside the text/shapes**.
+- **Output → Matte**: white shapes on transparent, for Resolume's mask/alpha blend modes.
+
+## Scenes (toggle each in the *Scenes* group)
+| Scene | What happens |
+|---|---|
+| Word Reveal | The next text pops in letter by letter, filled with the video, then fades before the next cut |
+| Word Knockout | Frame dims and the word punches through at full brightness |
+| Full Frame | Hard cut with a zoom punch and vignette |
+| Card Cascade | 4 cards fly in as a diagonal staircase, each a different crop |
+| Card Zoom | Small card pops in centre, then grows to full screen |
+| Card Scatter | 3–5 tilted cards pop in at random spots |
+| Iris | Circle opens from the centre with a cream rim |
+| Blinds | 8 vertical strips slide in from top and bottom |
+| Grid | 3×3 tiles pop in, in random order |
+
+**Flash Chance** adds cut accents: a cream card, a white flash or an orange light leak.
+
+## Controls
+- **Next** (button): jump to the next transition now. Map it to a key, MIDI or OSC.
+- **Auto on Beat** + **Cut Every**: 1/4 beat … 4 bars, synced to Resolume's BPM.
+- **Scene Order**: Sequential / Random / Shuffle (every scene once before repeats).
+- **Text 1–16** (*Texts* group): empty boxes are skipped. Use `|` for a line break (e.g. `DROP|THE BASS`).
+  Croatian and other Latin letters are supported (ČĆŽŠĐ, ÄÖÜ, É…).
+- **Text Order**: Sequential / Random / Shuffle / Ping-Pong.
+- **Letter Reveal**: Random Pop (like the reference), Left to Right, Slide Up, Scramble, All at Once.
+- **Font**: Archivo Black (wide, heavy) or Anton (condensed). **Text Size**, **Text Position** (Center / Random /
+  Top-Mid-Bottom), **Uppercase**.
+- **Color** (picker) + **Text Tint**: 0 = pure video in letters, 1 = coloured letters with the video showing as texture.
+- **Caption**: "Label on Cuts" writes the current word as a small cream label over card and cut scenes.
+- **Background**: Transparent / Black / Colour Vignette / Dimmed Video / Video.
+- **Anim Speed**, **Card Shadow**.
+
+Fonts: Archivo Black and Anton, SIL Open Font License (see `fonts/`). They are baked into the plugin as a
+signed-distance-field atlas (`tools/make_font_atlas.py`), so text stays sharp at any size.
+The scene engine is plain C++ (`source/Cutup/Engine.cpp`). `tools/cutup_sim.cpp` + `tools/cutup_preview.py` run it
+offline with the real shader to render previews.
