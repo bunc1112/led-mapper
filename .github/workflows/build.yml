@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: cmake -S . -B build-mac -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build-mac --config Release
-      - run: cd build-mac && zip -r Chronos-macOS.zip Chronos.bundle && zip -r Cutup-macOS.zip Cutup.bundle
+      - run: cd build-mac && for p in *.bundle; do zip -r "${p%.bundle}-macOS.zip" "$p"; done
       - uses: actions/upload-artifact@v4
         with: { name: Plugins-macOS-universal, path: "build-mac/*-macOS.zip" }
   release:
@@ -34,6 +34,6 @@ jobs:
           TAG=chronos-latest
           gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "CHRONOS + CUTUP FFGL plugins (latest build)" --prerelease \
-            --notes "Windows: download Chronos.dll and/or Cutup.dll and copy them to Documents\\Resolume Arena\\Extra Effects, then restart Resolume. macOS: unzip the -macOS.zip files and copy the .bundle files to the same folder." \
+            --title "CHRONOS + CUTUP + PUMP FFGL plugins (latest build)" --prerelease \
+            --notes "Windows: download Chronos.dll, Cutup.dll and/or Pump.dll and copy them to Documents\\Resolume Arena\\Extra Effects, then restart Resolume. macOS: unzip the -macOS.zip files and copy the .bundle files to the same folder." \
             dist/Plugins-Windows-x64/*.dll dist/Plugins-macOS-universal/*.zip

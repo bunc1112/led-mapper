@@ -136,3 +136,36 @@ Fonts: Archivo Black and Anton, SIL Open Font License (see `fonts/`). They are b
 signed-distance-field atlas (`tools/make_font_atlas.py`), so text stays sharp at any size.
 The scene engine is plain C++ (`source/Cutup/Engine.cpp`). `tools/cutup_sim.cpp` + `tools/cutup_preview.py` run it
 offline with the real shader to render previews.
+
+---
+
+# PUMP — make a layer pump on the beat over a background layer (third plugin)
+
+The big-LED-wall look: the top layer **flashes, glows and punches in on every beat**, then sinks back, while the
+layer below stays as the background. Its dark parts are keyed out, so the background shows through.
+
+`preview/pump_showreel.mp4` shows four setups: the reference look, sidechain duck, 8th-note strobe with RGB split and
+shake, and audio-kick with shockwave and defocus.
+
+## How to use
+1. **Layer 1 (bottom)**: your background clip.
+2. **Layer 2 (top)**: the clip that should pump, with **Pump** on it. Set the layer blend to Alpha (default).
+3. Done. With **Key = Luma Key**, the dark areas of layer 2 vanish and layer 1 is the background.
+   **Screen (Black = Clear)** behaves like an additive blend.
+
+## Controls
+- **Hit** (button): punch manually. Map it to a key, MIDI pad or OSC.
+- **Trigger From**: Beat Clock (Resolume BPM) · **Audio Kick** (listens to Resolume's audio input and fires on the
+  real kick drum; tune with *Audio Sensitivity*) · Beat + Audio · Button Only.
+- **Pattern** (beat clock): Every Beat, Off-Beats, Beats 1 & 3, Backbeat 2 & 4, Bar, 8ths, 16ths,
+  **Build-Up** (beats → beats → 8ths → 16ths over 4 bars), Random 8ths.
+- **Style**: **Punch** (flash and decay) · **Sidechain Duck** (dips on the kick and recovers, like EDM sidechain
+  compression) · **Swell** (rises into the next beat, then cuts) · **Strobe**.
+- **Decay** (shown in beats), **Snap** (curve), **Attack** (ms), **Downbeat Accent** (beat 1 hits harder).
+- **Pump Targets**: how strongly each reacts to the envelope: Brightness, Glow, Zoom Punch, Opacity (how much the
+  layer fades between hits), Saturation, RGB Split, Shake, Defocus (blurry between hits, sharp on the hit), Hue Shift,
+  Shockwave (ring ripple from the centre).
+- **Keying**: Key (Off / Luma / Screen), Key Level, Key Softness, **Key Pump** (more of the layer shows on each hit).
+
+The envelope engine is plain C++ (`source/Pump/Envelope.h`). `tools/pump_sim.cpp` + `tools/pump_preview.py` run it
+offline with the real shader.

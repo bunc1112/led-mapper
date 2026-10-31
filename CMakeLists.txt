@@ -53,3 +53,7 @@ add_ffgl_plugin(Chronos
 add_ffgl_plugin(Cutup
     source/Cutup/Cutup.cpp source/Cutup/Cutup.h source/Cutup/Engine.cpp source/Cutup/Engine.h
     source/Cutup/Shaders.h source/Cutup/FontAtlas.h)
+
+# PUMP - beat/kick synced pumping layer with keying
+add_ffgl_plugin(Pump
+    source/Pump/Pump.cpp source/Pump/Pump.h source/Pump/Envelope.h source/Pump/Shaders.h)
